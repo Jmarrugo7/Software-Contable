@@ -1,0 +1,234 @@
+@import "tailwindcss";
+
+/* Paleta azul moderna + blanco/negro como anclas.
+   Basada en: #7BD5F5 · #787FF6 · #4ADEDE · #1CA7EC · #1F2F98 */
+@theme {
+  /* ─── Neutros ─── */
+  --color-blanco: #ffffff;
+  --color-negro: #0a0a0a;
+  --color-gris-50: #f7f8fa;
+  --color-gris-100: #eef0f4;
+  --color-gris-200: #dde1e8;
+  --color-gris-300: #c2c8d2;
+  --color-gris-400: #9aa2b0;
+  --color-gris-500: #6b7280;
+  --color-gris-600: #4b5563;
+  --color-gris-700: #374151;
+  --color-gris-800: #1f2937;
+  --color-gris-900: #111827;
+
+  /* ─── Azules (paleta principal) ─── */
+  --color-azul-cielo: #7BD5F5;
+  --color-azul-lila: #787FF6;
+  --color-azul-turquesa: #4ADEDE;
+  --color-azul-medio: #1CA7EC;
+  --color-azul-profundo: #1F2F98;
+
+  /* ─── Semánticos de superficie ─── */
+  --color-fondo: #f7f8fa;
+  --color-superficie: #ffffff;
+  --color-borde: #dde1e8;
+
+  /* ─── Texto ─── */
+  --color-texto: #111827;
+  --color-texto-suave: #6b7280;
+
+  /* ─── Acento primario ─── */
+  --color-primario: #1CA7EC;
+  --color-primario-hover: #1793d1;
+  --color-primario-suave: #e8f4fd;
+
+  /* ─── Errores ─── */
+  --color-rojo: #ef4444;
+  --color-rojo-suave: #fef2f2;
+
+  /* ─── Sidebar ─── */
+  --color-sidebar: #111827;
+  --color-sidebar-hover: #1f2937;
+  --color-sidebar-activo: rgba(28, 167, 236, 0.15);
+  --color-sidebar-texto: #c2c8d2;
+  --color-sidebar-texto-activo: #ffffff;
+
+  --font-sans: "Source Sans 3 Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Cifras alineadas en columnas: esencial en un sistema contable */
+table,
+.cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Sidebar ─── */
+.sidebar {
+  width: 260px;
+  background: var(--color-sidebar);
+  color: var(--color-sidebar-texto);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 40;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: var(--color-sidebar-texto);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-sidebar-hover);
+  color: var(--color-sidebar-texto-activo);
+}
+
+.sidebar-link[aria-current="page"] {
+  background: var(--color-sidebar-activo);
+  color: var(--color-sidebar-texto-activo);
+}
+
+.sidebar-link[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 1.75rem;
+  border-radius: 0 4px 4px 0;
+  background: var(--color-primario);
+}
+
+/* ─── Contenido con sidebar ─── */
+.con-sidebar {
+  margin-left: 260px;
+  min-height: 100dvh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Botón hamburguesa (solo móvil) ─── */
+.btn-menu {
+  display: none;
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 50;
+  background: var(--color-sidebar);
+  color: var(--color-sidebar-texto-activo);
+  border: none;
+  border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.btn-menu:hover {
+  background: var(--color-sidebar-hover);
+}
+
+/* Overlay semitransparente en móvil */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 35;
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.abierto {
+    transform: translateX(0);
+  }
+  .sidebar-overlay.abierto {
+    display: block;
+  }
+  .con-sidebar {
+    margin-left: 0;
+  }
+  .btn-menu {
+    display: flex;
+  }
+}
+
+/* ─── Login ─── */
+.login-fondo {
+  background: linear-gradient(135deg, var(--color-azul-profundo) 0%, var(--color-azul-medio) 50%, var(--color-azul-turquesa) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-fondo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(120, 127, 246, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(74, 222, 222, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(123, 213, 245, 0.15) 0%, transparent 70%);
+  animation: pulso 8s ease-in-out infinite alternate;
+}
+
+@keyframes pulso {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+.login-tarjeta {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .login-tarjeta {
+    padding: 3rem;
+  }
+}

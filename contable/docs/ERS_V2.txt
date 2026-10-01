@@ -1,0 +1,806 @@
+ESPECIFICACIÓN DE REQUISITOS DE 
+SOFTWARE 
+Sistema de Gestión y Control de Gastos mediante 
+Facturas 
+Versión: 2.0 (Actualizada con las peticiones del usuario) 
+Estado: Documento de requisitos actualizado 
+Usuario del sistema: Contador 
+Módulos: Gestión de Facturas y Control de Gastos 
+Fecha: 29 de septiembre de 2026 
+ 
+1. Introducción 
+1.1 Propósito 
+El presente documento especifica los requisitos funcionales y no funcionales de un sistema 
+destinado al registro, consulta y control de gastos asociados a facturas. El sistema reemplazará 
+el manejo operativo realizado actualmente mediante hojas de cálculo y proporcionará una 
+interfaz centralizada para registrar facturas y analizar el comportamiento de los gastos. 
+1.2 Alcance 
+El sistema estará compuesto por dos submódulos principales: (1) Gestión de Facturas, 
+encargado del registro y administración de las facturas; y (2) Control de Gastos, encargado de 
+consolidar, filtrar y representar gráficamente los gastos registrados. El sistema no establecerá 
+un presupuesto límite; su finalidad será servir como herramienta de control y seguimiento de los 
+gastos. 
+1.3 Objetivos 
+●​ Centralizar el registro de las facturas y gastos. 
+●​ Reducir la dependencia de registros manuales en hojas de cálculo. 
+●​ Automatizar cálculos del subtotal y del total a partir de los valores e 
+impuestos/retenciones digitados. 
+●​ Conservar el historial de facturas anuladas sin afectar los valores contabilizados. 
+●​ Facilitar la consulta y análisis de los gastos mediante filtros e indicadores. 
+●​ Generar visualizaciones dinámicas de los gastos agrupados por día, semana, mes y año. 
+ 
+2. Descripción general del sistema 
+2.1 Usuario 
+El sistema tendrá un único tipo de usuario: el contador. El acceso se realizará mediante correo 
+electrónico y contraseña. El usuario tendrá permisos para realizar todas las operaciones 
+previstas. 
+2.2 Módulos 
+Módulo 
+Descripción 
+  
+Gestión de Facturas 
+Registro, consulta, edición, anulación, 
+reactivación, adjuntos, descarga y filtrado de 
+facturas. 
+Control de Gastos 
+Visualización consolidada de gastos, 
+indicadores, filtros y gráficas dinámicas por 
+día, semana, mes y año. 
+ 
+3. Requisitos funcionales 
+3.1 Autenticación 
+ID 
+Requisito 
+Descripción 
+  
+RF-01 
+Inicio de sesión 
+El sistema deberá permitir al 
+usuario autenticarse 
+mediante correo electrónico 
+y contraseña. 
+RF-02 
+Validación de acceso 
+El sistema deberá validar las 
+credenciales antes de 
+permitir el acceso a los 
+módulos. 
+RF-03 
+Cierre de sesión 
+El sistema deberá permitir 
+cerrar la sesión activa. 
+ 
+3.2 Registro de facturas 
+ID 
+Nombre 
+Descripción 
+  
+RF-04 
+Registrar factura 
+El sistema deberá permitir 
+registrar una nueva 
+factura/gasto. 
+RF-05 
+Fecha automática 
+El sistema deberá asignar 
+automáticamente como 
+fecha de la factura la fecha y 
+momento en que el usuario 
+realice el registro. 
+RF-06 
+Gasto/Compra 
+El sistema deberá exigir la 
+selección de Gasto/Compra 
+a partir de la lista de 
+categorías preestablecidas 
+(unificando la descripción y 
+el tipo de gasto). 
+RF-07 
+Categorización unificada 
+El sistema garantizará que la 
+selección de Gasto/Compra 
+utilice las categorías 
+preestablecidas de tipo de 
+gasto. 
+RF-08 
+Proveedor 
+El sistema deberá exigir el 
+registro del proveedor. 
+RF-09 
+Número de factura 
+El sistema deberá permitir 
+registrar el número de 
+factura cuando este aplique; 
+el campo no será obligatorio. 
+RF-10 
+Cantidad 
+El sistema deberá exigir el 
+registro de la cantidad, 
+asignando por defecto el 
+valor numérico de 1. 
+RF-11 
+Precio unitario 
+El sistema deberá exigir el 
+precio unitario. 
+RF-12 
+Precio total / Subtotal 
+El sistema deberá calcular 
+automáticamente el precio 
+total (subtotal) a partir de la 
+ID 
+Nombre 
+Descripción 
+  
+fórmula: cantidad × precio 
+unitario. 
+RF-13 
+IVA 
+El sistema deberá permitir 
+que el usuario digite 
+directamente el valor 
+numérico correspondiente al 
+IVA cuando este aplique. 
+RF-14 
+Retenciones 
+El sistema deberá permitir 
+que el usuario digite 
+directamente el valor 
+numérico para cada una de 
+las retenciones (retefuente, 
+reteICA y reteIVA) cuando 
+correspondan. 
+RF-15 
+Cálculo del total 
+El sistema deberá calcular 
+automáticamente el total de 
+la factura como: subtotal + 
+IVA − retefuente − reteICA − 
+reteIVA. 
+RF-16 
+Observaciones 
+El sistema deberá exigir el 
+registro de observaciones. 
+RF-17 
+Fuente de recursos 
+El sistema deberá exigir la 
+selección de una fuente de 
+recursos de una lista 
+preestablecida. 
+RF-18 
+Método de pago 
+El sistema deberá exigir la 
+selección de un método de 
+pago de una lista 
+preestablecida. 
+RF-19 
+Comprobante de 
+transferencia 
+Cuando el método de pago 
+sea transferencia, el sistema 
+deberá exigir el número de 
+comprobante. 
+RF-20 
+Archivos adjuntos 
+El sistema deberá permitir 
+adjuntar archivos asociados 
+a la factura en formato PDF 
+ID 
+Nombre 
+Descripción 
+  
+o imagen. 
+ 
+3.3 Consulta y administración de facturas 
+ID 
+Nombre 
+Descripción 
+  
+RF-21 
+Consultar facturas 
+El sistema deberá permitir 
+consultar las facturas 
+registradas y visualizar su 
+información. 
+RF-22 
+Ver detalle 
+El sistema deberá permitir 
+visualizar el detalle completo 
+de una factura. 
+RF-23 
+Editar factura 
+El sistema deberá permitir 
+modificar una factura 
+registrada cuando exista un 
+error en la información. 
+RF-24 
+Filtrar facturas 
+El sistema deberá permitir 
+filtrar las facturas por 
+Gasto/Compra y por rango 
+de fechas. 
+RF-25 
+Descargar factura 
+El sistema deberá permitir 
+descargar la información de 
+una factura y/o sus archivos 
+adjuntos disponibles. 
+RF-26 
+Anular factura 
+El sistema deberá permitir 
+anular una factura sin 
+eliminar físicamente sus 
+datos. 
+RF-27 
+Motivo de anulación 
+El sistema deberá permitir 
+registrar un motivo de 
+anulación. Este campo será 
+opcional. 
+RF-28 
+Ocultar anuladas 
+Las facturas anuladas no 
+ID 
+Nombre 
+Descripción 
+  
+deberán aparecer en las 
+consultas normales ni 
+participar en los cálculos del 
+módulo de gastos. 
+RF-29 
+Consultar anuladas 
+El sistema deberá disponer 
+de una opción específica 
+para consultar las facturas 
+anuladas. 
+RF-30 
+Reactivar factura 
+El sistema deberá permitir 
+reactivar una factura 
+anulada, haciendo que 
+vuelva a estar disponible en 
+las consultas y cálculos de 
+gastos. 
+ 
+3.4 Control de gastos 
+ID 
+Nombre 
+Descripción 
+  
+RF-31 
+Resumen de gastos 
+El sistema deberá presentar 
+indicadores consolidados de 
+los gastos registrados. 
+RF-32 
+Total de gastos 
+El sistema deberá calcular y 
+mostrar el total acumulado 
+de gastos activos. 
+RF-33 
+Cantidad de facturas 
+El sistema deberá mostrar la 
+cantidad de facturas activas 
+consideradas en el análisis. 
+RF-34 
+Filtro por Gasto/Compra 
+El sistema deberá permitir 
+filtrar los gastos por la 
+categoría unificada de 
+Gasto/Compra. 
+RF-35 
+Filtro por fechas 
+El sistema deberá permitir 
+filtrar los gastos por un rango 
+de fechas. 
+ID 
+Nombre 
+Descripción 
+  
+RF-36 
+Agrupación diaria 
+El sistema deberá permitir 
+visualizar los gastos 
+agrupados por día. 
+RF-37 
+Agrupación semanal 
+El sistema deberá permitir 
+visualizar los gastos 
+agrupados por semana. 
+RF-38 
+Agrupación mensual 
+El sistema deberá permitir 
+visualizar los gastos 
+agrupados por mes. 
+RF-39 
+Agrupación anual 
+El sistema deberá permitir 
+visualizar los gastos 
+agrupados por año. 
+RF-40 
+Gráficas dinámicas 
+El sistema deberá generar y 
+actualizar las gráficas de 
+acuerdo con los filtros y 
+agrupación temporal 
+seleccionados. 
+RF-41 
+Indicadores dinámicos 
+Los indicadores y totales del 
+módulo deberán actualizarse 
+con base en las facturas 
+activas que cumplan los 
+filtros seleccionados. 
+ 
+4. Reglas de negocio 
+ID 
+Regla 
+  
+RN-01 
+Una factura representa un registro contable 
+de gasto y no requiere el detalle individual de 
+los productos que la componen. 
+RN-02 
+La fecha de una factura corresponde a la 
+fecha en que el contador la registra en el 
+sistema. 
+ID 
+Regla 
+  
+RN-03 
+Cantidad y precio unitario son obligatorios. 
+La cantidad tendrá como valor por defecto 1. 
+RN-04 
+El subtotal se obtiene mediante cantidad × 
+precio unitario. 
+RN-05 
+Cuando aplique IVA, el contador podrá digitar 
+directamente su valor numérico. 
+RN-06 
+Las retenciones se registran únicamente 
+cuando correspondan, permitiendo al 
+contador digitar directamente sus valores 
+numéricos. 
+RN-07 
+El total se calcula como subtotal + IVA − 
+retenciones registradas. 
+RN-08 
+Las categorías de Gasto/Compra, fuentes de 
+recursos y métodos de pago son categorías 
+preestablecidas y no modificables por el 
+usuario. 
+RN-09 
+El número de comprobante es obligatorio 
+cuando el método de pago seleccionado sea 
+transferencia. 
+RN-10 
+Una factura anulada no afecta ningún total, 
+indicador o gráfica del módulo de gastos. 
+RN-11 
+Una factura anulada conserva sus datos para 
+fines de consulta e historial. 
+RN-12 
+Una factura reactivada vuelve a considerarse 
+en los cálculos del sistema. 
+RN-13 
+No existe un monto de presupuesto máximo 
+establecido; el módulo representa control y 
+comportamiento del gasto. 
+RN-14 
+Los productos individuales de una factura no 
+se gestionan como entidades 
+independientes; únicamente se selecciona el 
+Gasto/Compra correspondiente a la 
+categoría preestablecida. 
+ 
+5. Datos de la factura 
+Campo 
+Obligatorio 
+Origen/Comportamiento 
+  
+Fecha de registro 
+Sí 
+Generada automáticamente 
+por el sistema. 
+Gasto/Compra 
+Sí 
+Seleccionado de las 
+categorías preestablecidas 
+de tipo de gasto (unifica los 
+campos previos de 
+descripción y tipo de gasto). 
+Proveedor 
+Sí 
+Ingresado por el contador. 
+N.º de factura 
+No 
+Ingresado cuando aplique. 
+Cantidad 
+Sí 
+Ingresada por el contador; 
+valor asignado por defecto: 
+1. 
+Precio unitario 
+Sí 
+Ingresado por el contador. 
+Precio total / subtotal 
+Sí 
+Calculado automáticamente 
+(cantidad × precio unitario). 
+IVA 
+Condicional 
+Valor numérico digitado 
+directamente por el contador 
+cuando aplique. 
+Retefuente 
+Condicional 
+Valor numérico digitado 
+directamente por el contador 
+cuando aplique. 
+ReteICA 
+Condicional 
+Valor numérico digitado 
+directamente por el contador 
+cuando aplique. 
+ReteIVA 
+Condicional 
+Valor numérico digitado 
+directamente por el contador 
+cuando aplique. 
+Total 
+Sí 
+Calculado automáticamente 
+Campo 
+Obligatorio 
+Origen/Comportamiento 
+  
+(subtotal + IVA − 
+retenciones). 
+Observaciones 
+Sí 
+Ingresadas por el contador. 
+Fuente de recursos 
+Sí 
+Seleccionada de categorías 
+preestablecidas. 
+Método de pago 
+Sí 
+Seleccionado de categorías 
+preestablecidas. 
+N.º de comprobante 
+Condicional 
+Obligatorio cuando el método 
+de pago sea transferencia. 
+Archivo(s) adjunto(s) 
+No 
+PDF o imagen de soporte. 
+ 
+6. Categorías iniciales 
+Las categorías iniciales del sistema deberán corresponder a las utilizadas actualmente en el 
+archivo de trabajo suministrado, unificadas bajo el concepto de Gasto/Compra. Estas listas 
+serán configuradas durante la implementación y no podrán ser modificadas desde la interfaz 
+por el usuario. 
+Nota: la implementación deberá validar la lista definitiva de categorías contra la versión vigente 
+del archivo fuente antes de cargar los valores iniciales. 
+ 
+7. Casos de uso 
+ID 
+Caso de uso 
+Actor 
+Resultado 
+  
+CU-01 
+Iniciar sesión 
+Contador 
+Accede al sistema 
+tras validar sus 
+credenciales. 
+CU-02 
+Registrar factura 
+Contador 
+Se crea una factura 
+activa con cantidad 
+por defecto en 1 y 
+cálculo automático 
+del total según 
+ID 
+Caso de uso 
+Actor 
+Resultado 
+  
+valores e impuestos 
+digitados. 
+CU-03 
+Consultar factura 
+Contador 
+Visualiza la 
+información 
+registrada. 
+CU-04 
+Editar factura 
+Contador 
+Actualiza la 
+información de una 
+factura. 
+CU-05 
+Anular factura 
+Contador 
+La factura pasa a 
+estado anulada y 
+deja de 
+contabilizarse. 
+CU-06 
+Consultar anuladas 
+Contador 
+Visualiza las facturas 
+anuladas. 
+CU-07 
+Reactivar factura 
+Contador 
+La factura vuelve al 
+conjunto de gastos 
+activos. 
+CU-08 
+Consultar control de 
+gastos 
+Contador 
+Visualiza indicadores 
+y gráficas. 
+CU-09 
+Filtrar gastos 
+Contador 
+El sistema recalcula 
+los resultados según 
+los filtros (por 
+Gasto/Compra y 
+fechas). 
+CU-10 
+Adjuntar soporte 
+Contador 
+Asocia un PDF o 
+imagen a la factura. 
+ 
+8. Flujo general de registro de una 
+factura 
+1.​ El contador inicia sesión. 
+2.​ Selecciona la opción para registrar una factura. 
+3.​ El sistema asigna automáticamente la fecha de registro. 
+4.​ El contador selecciona el Gasto/Compra (categoría preestablecida), registra proveedor, 
+confirma/modifica la cantidad (asignada por defecto en 1), registra precio unitario, 
+observaciones y selecciona las categorías de fuente de recursos y método de pago. 
+5.​ El sistema calcula el subtotal (cantidad × precio unitario). 
+6.​ El contador digita directamente el valor numérico del IVA si aplica a la compra. 
+7.​ El contador digita directamente los valores numéricos de las retenciones (retefuente, 
+reteICA y reteIVA) que correspondan. 
+8.​ El sistema calcula el total acumulado (subtotal + IVA − retenciones). 
+9.​ El contador selecciona el método de pago. Si selecciona transferencia, registra 
+obligatoriamente el número de comprobante. 
+10.​El contador puede adjuntar el PDF o imagen de la factura. 
+11.​El contador confirms el registro. 
+12.​El sistema valida los campos obligatorios y almacena la factura como activa. 
+ 
+9. Flujo de anulación y reactivación 
+9.1 Anulación 
+1.​ El contador consulta una factura activa. 
+2.​ Selecciona la opción Anular. 
+3.​ El sistema solicita confirmación. 
+4.​ El contador puede ingresar un motivo de anulación, de forma opcional. 
+5.​ El sistema cambia el estado de la factura a Anulada. 
+6.​ La factura deja de aparecer en consultas normales y deja de afectar indicadores y 
+gráficas. 
+9.2 Reactivación 
+1.​ El contador accede al listado de facturas anuladas. 
+2.​ Selecciona una factura. 
+3.​ Elige la opción Reactivar. 
+4.​ El sistema solicita confirmación. 
+5.​ La factura cambia a estado Activa y vuelve a ser considerada en los cálculos. 
+ 
+10. Control de gastos y visualizaciones 
+El módulo de control de gastos deberá funcionar como un tablero de análisis. No deberá 
+mostrar un presupuesto objetivo ni generar alertas de sobreejecución, puesto que el sistema no 
+manejará un presupuesto preestablecido. 
+Funcionalidad 
+Comportamiento 
+  
+Total de gastos 
+Suma los totales de las facturas activas que 
+cumplen los filtros. 
+Cantidad de facturas 
+Cuenta las facturas activas que cumplen los 
+filtros. 
+Por Gasto/Compra 
+Permite analizar la distribución de gastos por 
+categoría unificada de Gasto/Compra. 
+Por día 
+Agrupa los gastos por fecha de registro. 
+Por semana 
+Agrupa los gastos por semana. 
+Por mes 
+Agrupa los gastos por mes. 
+Por año 
+Agrupa los gastos por año. 
+Actualización por filtros 
+Las cifras y gráficas se recalculan al cambiar 
+la categoría de Gasto/Compra o el rango de 
+fechas. 
+ 
+11. Requisitos no funcionales 
+ID 
+Categoría 
+Requisito 
+  
+RNF-01 
+Usabilidad 
+La interfaz deberá ser clara y 
+permitir registrar una factura 
+sin conocimientos técnicos. 
+RNF-02 
+Validación 
+Los campos obligatorios 
+deberán validarse antes de 
+guardar una factura. 
+RNF-03 
+Seguridad 
+Las funciones del sistema 
+deberán estar disponibles 
+únicamente para el usuario 
+autenticado. 
+RNF-04 
+Integridad 
+El sistema deberá conservar 
+la integridad de los cálculos y 
+ID 
+Categoría 
+Requisito 
+  
+evitar que una factura 
+incompleta sea registrada. 
+RNF-05 
+Trazabilidad 
+Las facturas anuladas 
+deberán conservarse para 
+mantener el historial de 
+operaciones. 
+RNF-06 
+Rendimiento 
+Las consultas, filtros y 
+actualización de indicadores 
+deberán ejecutarse en un 
+tiempo adecuado para el 
+volumen de información 
+esperado. 
+RNF-07 
+Compatibilidad 
+La interfaz deberá ser usable 
+en navegadores web 
+modernos. 
+RNF-08 
+Mantenibilidad 
+La solución deberá 
+organizarse de forma 
+modular para facilitar futuras 
+modificaciones. 
+RNF-09 
+Persistencia 
+Los datos registrados 
+deberán almacenarse de 
+forma persistente y 
+recuperable. 
+RNF-10 
+Archivos 
+El sistema deberá validar 
+que los archivos adjuntos 
+correspondan a formatos 
+permitidos y gestionar su 
+almacenamiento de forma 
+segura. 
+ 
+12. Modelo conceptual de información 
+Las entidades principales propuestas son: 
+Entidad 
+Descripción 
+Datos principales 
+  
+Usuario 
+Cuenta de acceso al 
+sistema. 
+id, correo, contraseña, 
+estado. 
+Factura 
+Registro principal del gasto. 
+id, fecha, gastoCompra, 
+proveedor, numeroFactura, 
+cantidad (por defecto 1), 
+precioUnitario, subtotal, iva 
+(numérico), retefuente 
+(numérico), reteICA 
+(numérico), reteIVA 
+(numérico), total, 
+observaciones, 
+fuenteRecursos, 
+metodoPago, comprobante, 
+estado. 
+GastoCompra 
+Categoría fija para clasificar 
+el gasto/compra (unificada). 
+id, nombre. 
+FuenteRecursos 
+Origen de los recursos 
+usados para pagar. 
+id, nombre. 
+MetodoPago 
+Forma en que se realizó el 
+pago. 
+id, nombre. 
+ArchivoAdjunto 
+Soporte asociado a una 
+factura. 
+id, factura, nombre, tipo, 
+ubicación. 
+Anulacion 
+Información asociada a la 
+anulación de una factura. 
+id, factura, fecha, motivo 
+opcional. 
+ 
+13. Criterios de aceptación principales 
+●​ Una factura no podrá guardarse si falta alguno de los campos obligatorios. 
+●​ El sistema asignará automáticamente la fecha de registro. 
+●​ El campo de cantidad tendrá asignado por defecto el valor de 1. 
+●​ El subtotal coincidirá con cantidad × precio unitario. 
+●​ El sistema permitirá digitar numéricamente los valores correspondientes al IVA y a las 
+retenciones (retefuente, reteICA y reteIVA). 
+●​ El total deberá reflejar la fórmula: subtotal + IVA − retenciones registradas. 
+●​ Los campos de descripción y tipo de gasto quedan unificados bajo el campo 
+Gasto/Compra seleccionado desde las categorías preestablecidas. 
+●​ Las categorías de Gasto/Compra, fuentes de recursos y métodos de pago deberán 
+seleccionarse desde listas preestablecidas. 
+●​ Una transferencia no podrá registrarse sin número de comprobante. 
+●​ Una factura anulada no deberá afectar los totales ni las gráficas. 
+●​ Una factura anulada deberá poder consultarse desde el apartado de anuladas. 
+●​ Una factura anulada podrá reactivarse y volverá a contabilizarse. 
+●​ Los filtros por Gasto/Compra y rango de fechas deberán actualizar los indicadores. 
+●​ Las gráficas deberán cambiar según el período de agrupación seleccionado: día, 
+semana, mes o año. 
+●​ Los archivos PDF e imagen deberán poder asociarse a la factura. 
+●​ El acceso a las funciones del sistema requerirá autenticación. 
+ 
+14. Restricciones y exclusiones 
+●​ No se realizará migración de los datos históricos del archivo Excel. 
+●​ No se gestionará el detalle individual de productos de una factura; únicamente se 
+seleccionará la categoría unificada de Gasto/Compra. 
+●​ No se administrarán proveedores como un módulo independiente. 
+●​ No se manejará un presupuesto límite o meta presupuestal. 
+●​ No se permitirá modificar desde la interfaz las categorías iniciales. 
+●​ No se eliminarán físicamente las facturas anuladas. 
+●​ El sistema tendrá un único usuario operativo. 
+ 
+15. Consideraciones para la 
+implementación 
+La arquitectura, tecnología, motor de base de datos, mecanismo de almacenamiento de 
+archivos y diseño visual podrán definirse en una etapa posterior de diseño. La implementación 
+deberá respetar los requisitos funcionales y reglas de negocio establecidos en este documento. 
+Las categorías iniciales de Gasto/Compra, fuente de recursos y método de pago deberán 
+tomarse de la versión vigente del archivo de operación utilizado como referencia y validarse 
+antes de la puesta en producción. 
+ 
+16. Resumen de trazabilidad de 
+requisitos 
+Área 
+Requisitos relacionados 
+  
+Autenticación 
+RF-01 a RF-03 
+Registro de facturas 
+RF-04 a RF-20 (incluye Gasto/Compra, 
+Cantidad por defecto = 1, IVA y retenciones 
+digitadas) 
+Consulta y administración 
+RF-21 a RF-30 
+Control de gastos 
+RF-31 a RF-41 
+Reglas de negocio 
+RN-01 a RN-14 
+Calidad del sistema 
+RNF-01 a RNF-10 
+ 
