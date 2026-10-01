@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
@@ -86,52 +87,74 @@ export default async function PaginaFacturas({
             {facturas && facturas.length > 0 ? (
               facturas.map((f: any) => {
                 const esNotaCredito = f.gastos_compras?.nombre?.toUpperCase() === "NOTA CREDITO";
+                const filaBase = `block md:table-row ${estadoFiltro === "anulada" ? "opacity-60 saturate-50 mix-blend-multiply" : ""}`;
                 return (
+                <Fragment key={f.id}>
                 <tr 
-                  key={f.id} 
-                  className={`block md:table-row border-b border-borde md:border-none p-4 md:p-0 ${esNotaCredito ? "bg-rose-50/70 md:border-l-4 md:border-l-rose-400 hover:bg-rose-100/60" : "hover:bg-gris-50/50"}`}
+                  className={`${filaBase} border-b-0 p-4 md:p-0 ${esNotaCredito ? "bg-rose-50/70 md:border-l-4 md:border-l-rose-400 hover:bg-rose-100/60" : "hover:bg-gris-50/50"}`}
                 >
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Fecha</span>
                     <span className="text-right md:text-left">{new Date(f.fecha_registro).toLocaleDateString()}</span>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 font-medium ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 font-medium ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Gasto/Compra</span>
                     <div className="text-right md:text-left flex items-center justify-end md:justify-start gap-2">
                       {f.gastos_compras?.nombre}
                       {esNotaCredito && <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Resta</span>}
                     </div>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 ${esNotaCredito ? "text-rose-600" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-600" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Proveedor</span>
                     <span className="text-right md:text-left">{f.proveedor}</span>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 ${esNotaCredito ? "text-rose-500" : "text-texto-suave"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-500" : "text-texto-suave"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Fuente</span>
                     <span className="text-right md:text-left">{f.fuentes_recursos?.nombre}</span>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Subtotal</span>
                     <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.subtotal)}</span>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">IVA</span>
                     <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.iva)}</span>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Retenciones</span>
                     <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((f.retefuente || 0) + (f.reteica || 0) + (f.reteiva || 0))}</span>
                   </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:py-3 font-medium md:text-right cifras ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
+                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 font-medium md:text-right cifras ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
                     <span className="font-semibold md:hidden text-texto-suave">Total</span>
                     <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.total)}</span>
                   </td>
-                  <td className="flex justify-center md:table-cell px-2 md:px-4 py-4 md:py-3 md:text-center mt-2 md:mt-0 border-t border-borde/50 md:border-none">
+                  {/* Observaciones en móvil: después del Total */}
+                  {f.observaciones && (
+                    <td className={`flex md:hidden flex-col px-2 py-2 border-t border-borde/40 ${esNotaCredito ? "bg-rose-50/40" : "bg-gris-50/50"}`}>
+                      <span className="text-xs font-semibold text-texto-suave uppercase tracking-wide mb-0.5">Observaciones</span>
+                      <span className="text-sm text-texto italic">{f.observaciones}</span>
+                    </td>
+                  )}
+                  <td className="flex justify-center md:table-cell px-2 md:px-4 py-4 md:pt-3 md:pb-1 md:text-center mt-2 md:mt-0 border-t border-borde/50 md:border-none" rowSpan={2}>
                     <Link href={`/facturas/${f.id}`} className="text-primario hover:underline font-medium bg-primario/10 md:bg-transparent px-4 py-2 md:p-0 rounded-lg w-full md:w-auto text-center">
                       Ver detalle
                     </Link>
                   </td>
                 </tr>
+                {/* Fila de observaciones — solo escritorio */}
+                <tr key={`${f.id}-obs`} className={`hidden md:table-row border-b border-borde ${estadoFiltro === "anulada" ? "opacity-60 saturate-50 mix-blend-multiply" : ""} ${esNotaCredito ? "bg-rose-50/30" : ""}`}>
+                  <td colSpan={8} className="px-4 pb-3 pt-0">
+                    {f.observaciones ? (
+                      <p className="text-sm text-texto-suave italic truncate max-w-2xl">
+                        <span className="font-semibold not-italic text-texto-suave/70 mr-1">Obs:</span>
+                        {f.observaciones}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-texto-suave/40 italic">Sin observaciones</p>
+                    )}
+                  </td>
+                </tr>
+                </Fragment>
                 );
               })
             ) : (

@@ -31,7 +31,10 @@ export async function crearFactura(prevState: any, formData: FormData) {
       metodo_pago_id: Number(formData.get("metodo_pago_id")),
       numero_comprobante: formData.get("numero_comprobante") ? String(formData.get("numero_comprobante")).trim() : null,
       estado: "activa",
-      created_by: user.id
+      created_by: user.id,
+      fecha_registro: formData.get("fecha") 
+        ? new Date(`${formData.get("fecha")}T12:00:00Z`).toISOString() // Evita desfasaje horario
+        : new Date().toISOString()
     };
 
     // Verificar si es nota crédito para permitir negativos
@@ -113,6 +116,9 @@ export async function editarFactura(id: string, prevState: any, formData: FormDa
       fuente_recursos_id: Number(formData.get("fuente_recursos_id")),
       metodo_pago_id: Number(formData.get("metodo_pago_id")),
       numero_comprobante: formData.get("numero_comprobante") ? String(formData.get("numero_comprobante")).trim() : null,
+      fecha_registro: formData.get("fecha") 
+        ? new Date(`${formData.get("fecha")}T12:00:00Z`).toISOString() // Evita desfasaje horario
+        : new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 

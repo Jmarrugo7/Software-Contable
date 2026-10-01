@@ -74,6 +74,9 @@ export function FormularioFactura({ gastos, fuentes, metodos, facturaId, initial
     const form = formRef.current;
     if (!form) return false;
 
+    const fecha = (form.elements.namedItem("fecha") as HTMLInputElement)?.value;
+    if (!fecha) nuevosErrores.fecha = "Selecciona la fecha de la factura.";
+
     const proveedor = (form.elements.namedItem("proveedor") as HTMLInputElement)?.value?.trim();
     if (!proveedor) nuevosErrores.proveedor = MENSAJES.proveedor;
 
@@ -137,7 +140,19 @@ export function FormularioFactura({ gastos, fuentes, metodos, facturaId, initial
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Campo id="fecha" etiqueta="Fecha de la factura" error={errores.fecha}>
+          <Input 
+            id="fecha" 
+            name="fecha" 
+            type="date" 
+            defaultValue={initialData?.fecha_registro ? initialData.fecha_registro.split("T")[0] : new Date().toLocaleDateString('en-CA')} 
+            aria-invalid={!!errores.fecha}
+            onChange={() => limpiarError("fecha")}
+            max={new Date().toLocaleDateString('en-CA')}
+          />
+        </Campo>
+
         <Campo id="gasto_compra_id" etiqueta="Categoría de Gasto/Compra" error={errores.gasto_compra_id}>
           <Select 
             id="gasto_compra_id" 
