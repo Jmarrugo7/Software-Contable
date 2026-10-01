@@ -42,3 +42,4 @@ next-env.d.ts
 
 # el ejemplo sí se versiona (no contiene secretos)
 !.env.local.example
+.env.local.example
