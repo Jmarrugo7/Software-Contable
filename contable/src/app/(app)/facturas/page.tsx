@@ -1,26 +1,40 @@
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { puedeEditar } from "@/lib/permisos";
+import { FiltrosFacturas } from "./filtros-facturas";
 
 export const metadata: Metadata = { title: "Facturas" };
 
 export default async function PaginaFacturas({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string }>;
+  searchParams: Promise<{
+    estado?: string;
+    fecha?: string;
+    gasto?: string;
+    proveedor?: string;
+    subtotal?: string;
+    total?: string;
+  }>;
 }) {
   const supabase = await createClient();
-  const { estado } = await searchParams;
+  const { estado, fecha, gasto, proveedor, subtotal, total } = await searchParams;
   const estadoFiltro = estado === "anulada" ? "anulada" : "activa";
 
   const { data: { user } } = await supabase.auth.getUser();
   const esEditor = puedeEditar(user?.email);
 
-  const { data: facturas } = await supabase
+  // Fetch catalog tables for filter dropdowns
+  const [gastosRes] = await Promise.all([
+    supabase.from("gastos_compras").select("id, nombre").order("nombre"),
+  ]);
+
+  // Build the facturas query with filters
+  let query = supabase
     .from("facturas")
     .select(`
       *,
@@ -28,8 +42,17 @@ export default async function PaginaFacturas({
       fuentes_recursos(nombre),
       metodos_pago(nombre)
     `)
-    .eq("estado", estadoFiltro)
-    .order("fecha_registro", { ascending: false });
+    .eq("estado", estadoFiltro);
+
+  if (fecha) {
+    query = query.gte("fecha_registro", fecha).lte("fecha_registro", `${fecha}T23:59:59`);
+  }
+  if (gasto) query = query.eq("gasto_compra_id", Number(gasto));
+  if (proveedor) query = query.ilike("proveedor", `%${proveedor}%`);
+  if (subtotal) query = query.gte("subtotal", Number(subtotal));
+  if (total) query = query.gte("total", Number(total));
+
+  const { data: facturas } = await query.order("fecha_registro", { ascending: false });
 
   return (
     <>
@@ -39,12 +62,12 @@ export default async function PaginaFacturas({
             {estadoFiltro === "activa" ? "Facturas activas" : "Facturas anuladas"}
           </h1>
           <p className="mt-2 max-w-prose text-texto-suave">
-            {estadoFiltro === "activa" 
+            {estadoFiltro === "activa"
               ? "Aquí vas a registrar, consultar y administrar tus facturas registradas."
               : "Historial de facturas que han sido anuladas y no se contabilizan."}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           {estadoFiltro === "activa" ? (
             <Link href="/facturas?estado=anulada">
@@ -55,7 +78,7 @@ export default async function PaginaFacturas({
               <Button variante="secundario">Ver activas</Button>
             </Link>
           )}
-          
+
           {esEditor && (
             <Link href="/facturas/nueva">
               <Button>
@@ -67,7 +90,13 @@ export default async function PaginaFacturas({
         </div>
       </div>
 
-      <div className="mt-8 rounded-lg border border-borde bg-superficie shadow-sm">
+      <Suspense fallback={null}>
+        <FiltrosFacturas
+          gastos={gastosRes.data || []}
+        />
+      </Suspense>
+
+      <div className="mt-4 rounded-lg border border-borde bg-superficie shadow-sm">
         {/* On mobile, no overflow-x-auto so it stacks. We'll use a standard table that converts to block/flex on small screens */}
         <table className="w-full border-collapse text-sm block md:table">
           <thead className="bg-gris-50 border-b border-borde text-texto-suave hidden md:table-header-group">
@@ -89,72 +118,72 @@ export default async function PaginaFacturas({
                 const esNotaCredito = f.gastos_compras?.nombre?.toUpperCase() === "NOTA CREDITO";
                 const filaBase = `block md:table-row ${estadoFiltro === "anulada" ? "opacity-60 saturate-50 mix-blend-multiply" : ""}`;
                 return (
-                <Fragment key={f.id}>
-                <tr 
-                  className={`${filaBase} border-b-0 p-4 md:p-0 ${esNotaCredito ? "bg-rose-50/70 md:border-l-4 md:border-l-rose-400 hover:bg-rose-100/60" : "hover:bg-gris-50/50"}`}
-                >
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Fecha</span>
-                    <span className="text-right md:text-left">{new Date(f.fecha_registro).toLocaleDateString()}</span>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 font-medium ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Gasto/Compra</span>
-                    <div className="text-right md:text-left flex items-center justify-end md:justify-start gap-2">
-                      {f.gastos_compras?.nombre}
-                      {esNotaCredito && <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Resta</span>}
-                    </div>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-600" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Proveedor</span>
-                    <span className="text-right md:text-left">{f.proveedor}</span>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-500" : "text-texto-suave"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Fuente</span>
-                    <span className="text-right md:text-left">{f.fuentes_recursos?.nombre}</span>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Subtotal</span>
-                    <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.subtotal)}</span>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">IVA</span>
-                    <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.iva)}</span>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Retenciones</span>
-                    <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((f.retefuente || 0) + (f.reteica || 0) + (f.reteiva || 0))}</span>
-                  </td>
-                  <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 font-medium md:text-right cifras ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
-                    <span className="font-semibold md:hidden text-texto-suave">Total</span>
-                    <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.total)}</span>
-                  </td>
-                  {/* Observaciones en móvil: después del Total */}
-                  {f.observaciones && (
-                    <td className={`flex md:hidden flex-col px-2 py-2 border-t border-borde/40 ${esNotaCredito ? "bg-rose-50/40" : "bg-gris-50/50"}`}>
-                      <span className="text-xs font-semibold text-texto-suave uppercase tracking-wide mb-0.5">Observaciones</span>
-                      <span className="text-sm text-texto italic">{f.observaciones}</span>
-                    </td>
-                  )}
-                  <td className="flex justify-center md:table-cell px-2 md:px-4 py-4 md:pt-3 md:pb-1 md:text-center mt-2 md:mt-0 border-t border-borde/50 md:border-none" rowSpan={2}>
-                    <Link href={`/facturas/${f.id}`} className="text-primario hover:underline font-medium bg-primario/10 md:bg-transparent px-4 py-2 md:p-0 rounded-lg w-full md:w-auto text-center">
-                      Ver detalle
-                    </Link>
-                  </td>
-                </tr>
-                {/* Fila de observaciones — solo escritorio */}
-                <tr key={`${f.id}-obs`} className={`hidden md:table-row border-b border-borde ${estadoFiltro === "anulada" ? "opacity-60 saturate-50 mix-blend-multiply" : ""} ${esNotaCredito ? "bg-rose-50/30" : ""}`}>
-                  <td colSpan={8} className="px-4 pb-3 pt-0">
-                    {f.observaciones ? (
-                      <p className="text-sm text-texto-suave italic truncate max-w-2xl">
-                        <span className="font-semibold not-italic text-texto-suave/70 mr-1">Obs:</span>
-                        {f.observaciones}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-texto-suave/40 italic">Sin observaciones</p>
-                    )}
-                  </td>
-                </tr>
-                </Fragment>
+                  <Fragment key={f.id}>
+                    <tr
+                      className={`${filaBase} border-b-0 p-4 md:p-0 ${esNotaCredito ? "bg-rose-50/70 md:border-l-4 md:border-l-rose-400 hover:bg-rose-100/60" : "hover:bg-gris-50/50"}`}
+                    >
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Fecha</span>
+                        <span className="text-right md:text-left">{new Date(f.fecha_registro).toLocaleDateString()}</span>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 font-medium ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Gasto/Compra</span>
+                        <div className="text-right md:text-left flex items-center justify-end md:justify-start gap-2">
+                          {f.gastos_compras?.nombre}
+                          {esNotaCredito && <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Resta</span>}
+                        </div>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-600" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Proveedor</span>
+                        <span className="text-right md:text-left">{f.proveedor}</span>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 ${esNotaCredito ? "text-rose-500" : "text-texto-suave"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Fuente</span>
+                        <span className="text-right md:text-left">{f.fuentes_recursos?.nombre}</span>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Subtotal</span>
+                        <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.subtotal)}</span>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">IVA</span>
+                        <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.iva)}</span>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 md:text-right cifras ${esNotaCredito ? "text-rose-700 font-medium" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Retenciones</span>
+                        <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((f.retefuente || 0) + (f.reteica || 0) + (f.reteiva || 0))}</span>
+                      </td>
+                      <td className={`flex justify-between md:table-cell px-2 md:px-4 py-2 md:pt-3 md:pb-1 font-medium md:text-right cifras ${esNotaCredito ? "text-rose-700" : "text-texto"}`}>
+                        <span className="font-semibold md:hidden text-texto-suave">Total</span>
+                        <span>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(f.total)}</span>
+                      </td>
+                      {/* Observaciones en móvil: después del Total */}
+                      {f.observaciones && (
+                        <td className={`flex md:hidden flex-col px-2 py-2 border-t border-borde/40 ${esNotaCredito ? "bg-rose-50/40" : "bg-gris-50/50"}`}>
+                          <span className="text-xs font-semibold text-texto-suave uppercase tracking-wide mb-0.5">Observaciones</span>
+                          <span className="text-sm text-texto italic">{f.observaciones}</span>
+                        </td>
+                      )}
+                      <td className="flex justify-center md:table-cell px-2 md:px-4 py-4 md:pt-3 md:pb-1 md:text-center mt-2 md:mt-0 border-t border-borde/50 md:border-none" rowSpan={2}>
+                        <Link href={`/facturas/${f.id}`} className="text-primario hover:underline font-medium bg-primario/10 md:bg-transparent px-4 py-2 md:p-0 rounded-lg w-full md:w-auto text-center">
+                          Ver detalle
+                        </Link>
+                      </td>
+                    </tr>
+                    {/* Fila de observaciones — solo escritorio */}
+                    <tr key={`${f.id}-obs`} className={`hidden md:table-row border-b border-borde ${estadoFiltro === "anulada" ? "opacity-60 saturate-50 mix-blend-multiply" : ""} ${esNotaCredito ? "bg-rose-50/30" : ""}`}>
+                      <td colSpan={8} className="px-4 pb-3 pt-0">
+                        {f.observaciones ? (
+                          <p className="text-sm text-texto-suave italic truncate max-w-2xl">
+                            <span className="font-semibold not-italic text-texto-suave/70 mr-1">Obs:</span>
+                            {f.observaciones}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-texto-suave/40 italic">Sin observaciones</p>
+                        )}
+                      </td>
+                    </tr>
+                  </Fragment>
                 );
               })
             ) : (
