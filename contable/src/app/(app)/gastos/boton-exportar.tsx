@@ -147,9 +147,17 @@ export function BotonExportar({ filtrosActuales }: BotonExportarProps) {
       // Filas alternadas y estilos
       sheetFacturas.eachRow((row, rowNumber) => {
         if (rowNumber > 1 && rowNumber < totalRowFacturas.number) {
-          row.eachCell((cell) => {
-            // Fondo verde muy pálido para filas alternas, o dejar blanco
-            if (rowNumber % 2 === 0) {
+          const esNotaCredito = row.getCell("tipo").value?.toString().toUpperCase() === "NOTA CREDITO";
+
+          row.eachCell({ includeEmpty: true }, (cell) => {
+            if (esNotaCredito) {
+              cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFFFE4E6" } // Rojo pastel (Tailwind rose-100)
+              };
+              cell.font = { color: { argb: "FFBE123C" } }; // Texto rojo oscuro (Tailwind rose-700)
+            } else if (rowNumber % 2 === 0) {
               cell.fill = {
                 type: "pattern",
                 pattern: "solid",
@@ -168,7 +176,7 @@ export function BotonExportar({ filtrosActuales }: BotonExportarProps) {
       });
 
       // Estilo para la fila de totales (última fila de facturas)
-      totalRowFacturas.eachCell((cell) => {
+      totalRowFacturas.eachCell({ includeEmpty: true }, (cell) => {
         cell.fill = {
           type: "pattern",
           pattern: "solid",

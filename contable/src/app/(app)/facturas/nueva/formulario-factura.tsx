@@ -50,8 +50,12 @@ export function FormularioFactura({ gastos, fuentes, metodos, facturaId, initial
   const esNotaCredito = gastoInfo?.nombre?.toUpperCase() === "NOTA CREDITO";
   const minValor = esNotaCredito ? undefined : "0";
 
-  const subtotal = cantidad * precioUnitario;
-  const total = subtotal + iva - retefuente - reteica - reteiva;
+  const subtotal = esNotaCredito ? -(cantidad * Math.abs(precioUnitario)) : (cantidad * precioUnitario);
+  const calcIva = esNotaCredito ? -Math.abs(iva) : iva;
+  const calcRetefuente = esNotaCredito ? -Math.abs(retefuente) : retefuente;
+  const calcReteica = esNotaCredito ? -Math.abs(reteica) : reteica;
+  const calcReteiva = esNotaCredito ? -Math.abs(reteiva) : reteiva;
+  const total = subtotal + calcIva - calcRetefuente - calcReteica - calcReteiva;
   
   const metodoInfo = metodos.find(m => m.id === Number(metodoSeleccionado));
   const requiereComprobante = metodoInfo?.requiere_comprobante ?? false;
