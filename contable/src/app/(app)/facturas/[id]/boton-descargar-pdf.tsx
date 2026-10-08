@@ -5,7 +5,7 @@ import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FacturaData {
-  id: number;
+  id: string;
   fecha_registro: string;
   proveedor: string;
   numero_factura: string | null;
