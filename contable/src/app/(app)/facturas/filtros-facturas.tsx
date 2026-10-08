@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useRef, useState, useTransition } from "react";
-import { Search, X, SlidersHorizontal, DollarSign } from "lucide-react";
+import { Search, X, SlidersHorizontal, DollarSign, FileText } from "lucide-react";
 
 type Catalogo = { id: number; nombre: string };
 
@@ -19,20 +19,23 @@ export function FiltrosFacturas({ gastos }: FiltrosFacturasProps) {
   const fecha = searchParams.get("fecha") || "";
   const gastoId = searchParams.get("gasto") || "";
   const proveedorParam = searchParams.get("proveedor") || "";
+  const observacionesParam = searchParams.get("observaciones") || "";
   const subtotalParam = searchParams.get("subtotal") || "";
   const totalParam = searchParams.get("total") || "";
   const estado = searchParams.get("estado") || "";
 
   // Local state for debounced inputs
   const [proveedorLocal, setProveedorLocal] = useState(proveedorParam);
+  const [observacionesLocal, setObservacionesLocal] = useState(observacionesParam);
   const [subtotalLocal, setSubtotalLocal] = useState(subtotalParam);
   const [totalLocal, setTotalLocal] = useState(totalParam);
   const debounceProvRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceObsRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceSubRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceTotRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hayFiltrosActivos =
-    fecha || gastoId || proveedorParam || subtotalParam || totalParam;
+    fecha || gastoId || proveedorParam || observacionesParam || subtotalParam || totalParam;
 
   const actualizarFiltro = useCallback(
     (clave: string, valor: string) => {
@@ -69,9 +72,11 @@ export function FiltrosFacturas({ gastos }: FiltrosFacturasProps) {
     const params = new URLSearchParams();
     if (estado) params.set("estado", estado);
     setProveedorLocal("");
+    setObservacionesLocal("");
     setSubtotalLocal("");
     setTotalLocal("");
     if (debounceProvRef.current) clearTimeout(debounceProvRef.current);
+    if (debounceObsRef.current) clearTimeout(debounceObsRef.current);
     if (debounceSubRef.current) clearTimeout(debounceSubRef.current);
     if (debounceTotRef.current) clearTimeout(debounceTotRef.current);
     startTransition(() => {
@@ -107,7 +112,7 @@ export function FiltrosFacturas({ gastos }: FiltrosFacturasProps) {
 
       {/* Filter Grid */}
       <div
-        className={`grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-5 transition-opacity duration-200 ${isPending ? "opacity-50" : ""}`}
+        className={`grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-6 transition-opacity duration-200 ${isPending ? "opacity-50" : ""}`}
       >
         {/* Fecha — single date */}
         <div className="flex flex-col gap-1.5">
@@ -169,6 +174,30 @@ export function FiltrosFacturas({ gastos }: FiltrosFacturasProps) {
               value={proveedorLocal}
               onChange={(e) =>
                 handleDebouncedChange("proveedor", e.target.value, setProveedorLocal, debounceProvRef)
+              }
+              className="h-9 w-full rounded-md border border-borde bg-superficie pl-8 pr-2.5 text-sm text-texto placeholder:text-texto-suave/60 focus:border-primario focus:ring-2 focus:ring-primario/20 transition-all duration-200"
+            />
+          </div>
+        </div>
+
+        {/* Observaciones — debounced text search */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="filtro-observaciones"
+            className="text-xs font-semibold text-texto-suave uppercase tracking-wide"
+          >
+            Observaciones
+          </label>
+          <div className="relative">
+            <FileText className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-texto-suave/60 pointer-events-none" />
+            <input
+              suppressHydrationWarning
+              id="filtro-observaciones"
+              type="text"
+              placeholder="Buscar..."
+              value={observacionesLocal}
+              onChange={(e) =>
+                handleDebouncedChange("observaciones", e.target.value, setObservacionesLocal, debounceObsRef)
               }
               className="h-9 w-full rounded-md border border-borde bg-superficie pl-8 pr-2.5 text-sm text-texto placeholder:text-texto-suave/60 focus:border-primario focus:ring-2 focus:ring-primario/20 transition-all duration-200"
             />

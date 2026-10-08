@@ -17,12 +17,13 @@ export default async function PaginaFacturas({
     fecha?: string;
     gasto?: string;
     proveedor?: string;
+    observaciones?: string;
     subtotal?: string;
     total?: string;
   }>;
 }) {
   const supabase = await createClient();
-  const { estado, fecha, gasto, proveedor, subtotal, total } = await searchParams;
+  const { estado, fecha, gasto, proveedor, observaciones, subtotal, total } = await searchParams;
   const estadoFiltro = estado === "anulada" ? "anulada" : "activa";
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -49,6 +50,7 @@ export default async function PaginaFacturas({
   }
   if (gasto) query = query.eq("gasto_compra_id", Number(gasto));
   if (proveedor) query = query.ilike("proveedor", `%${proveedor}%`);
+  if (observaciones) query = query.ilike("observaciones", `%${observaciones}%`);
   if (subtotal) query = query.gte("subtotal", Number(subtotal));
   if (total) query = query.gte("total", Number(total));
 

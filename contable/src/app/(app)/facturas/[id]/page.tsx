@@ -5,6 +5,7 @@ import { ChevronLeft, Edit, AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BotonAnular } from "./boton-anular";
 import { BotonReactivar } from "./boton-reactivar";
+import { BotonDescargarPdf } from "./boton-descargar-pdf";
 import { puedeEditar } from "@/lib/permisos";
 
 export default async function DetalleFacturaPage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,23 +53,26 @@ export default async function DetalleFacturaPage({ params }: { params: Promise<{
           </div>
         </div>
         
-        {esEditor && (
-          <div className="flex flex-wrap items-center gap-2 pl-11 sm:pl-0">
-            {factura.estado === "activa" ? (
-              <>
-                <BotonAnular id={factura.id} />
-                <Link href={`/facturas/${factura.id}/editar`}>
-                  <Button variante="secundario">
-                    <Edit className="size-4 mr-2" />
-                    Editar
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <BotonReactivar id={factura.id} />
-            )}
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2 pl-11 sm:pl-0">
+          <BotonDescargarPdf factura={factura} />
+          {esEditor && (
+            <>
+              {factura.estado === "activa" ? (
+                <>
+                  <BotonAnular id={factura.id} />
+                  <Link href={`/facturas/${factura.id}/editar`}>
+                    <Button variante="secundario">
+                      <Edit className="size-4 mr-2" />
+                      Editar
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <BotonReactivar id={factura.id} />
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {factura.estado === "anulada" && factura.anulaciones?.[0] && (
