@@ -141,7 +141,7 @@ export default async function PaginaGastos({
         <div className="xl:col-span-2 rounded-xl border border-borde bg-superficie p-6 shadow-sm">
           <h3 className="font-semibold text-lg text-texto mb-6">Comportamiento en el tiempo</h3>
           <div className="h-[350px]">
-            <GraficaGastos datos={gastosPorPeriodo || []} agrupacion={agrupacion} />
+            <GraficaGastos datos={gastosPorPeriodo || []} />
           </div>
         </div>
 

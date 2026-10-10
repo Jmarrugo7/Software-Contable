@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FileText, BarChart3, LogOut, Menu, X, EyeOff } from "lucide-react";
+import { FileText, BarChart3, ClipboardList, LogOut, Menu, X, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const enlaces = [
   { href: "/facturas", texto: "Facturas", icono: FileText },
   { href: "/gastos", texto: "Control de gastos", icono: BarChart3 },
+  { href: "/pendientes", texto: "Pendientes", icono: ClipboardList },
 ];
 
 export function Sidebar({

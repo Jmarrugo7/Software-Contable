@@ -187,6 +187,71 @@ export type Database = {
           },
         ];
       };
+      pendientes: {
+        Row: {
+          id: string;
+          tipo: "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
+          descripcion: string;
+          valor: number | null;
+          cumplido: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          tipo: "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
+          descripcion: string;
+          valor?: number | null;
+          cumplido?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          tipo?: "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
+          descripcion?: string;
+          valor?: number | null;
+          cumplido?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      actividades_realizadas: {
+        Row: {
+          id: string;
+          pendiente_id: string;
+          tipo_actividad: "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
+          descripcion: string;
+          valor: number | null;
+          fecha_cumplida: string;
+        };
+        Insert: {
+          id?: string;
+          pendiente_id: string;
+          tipo_actividad: "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
+          descripcion: string;
+          valor?: number | null;
+          fecha_cumplida?: string;
+        };
+        Update: {
+          id?: string;
+          pendiente_id?: string;
+          tipo_actividad?: "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
+          descripcion?: string;
+          valor?: number | null;
+          fecha_cumplida?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "actividades_realizadas_pendiente_id_fkey";
+            columns: ["pendiente_id"];
+            isOneToOne: false;
+            referencedRelation: "pendientes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {

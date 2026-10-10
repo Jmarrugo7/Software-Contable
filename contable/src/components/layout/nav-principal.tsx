@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const enlaces = [
   { href: "/facturas", texto: "Facturas" },
   { href: "/gastos", texto: "Control de gastos" },
+  { href: "/pendientes", texto: "Pendientes" },
 ];
 
 export function NavPrincipal() {
