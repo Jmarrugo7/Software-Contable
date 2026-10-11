@@ -48,9 +48,11 @@ const COLOR_BADGE: Record<TipoPendiente, string> = {
 export function ContenidoPendientes({
   pendientes,
   actividades,
+  esEditor,
 }: {
   pendientes: PendienteRow[];
   actividades: ActividadRow[];
+  esEditor: boolean;
 }) {
   const todasPendientes = pendientes.filter((p) => !p.cumplido);
   const porPagar = pendientes.filter((p) => p.tipo === "CUENTA_POR_PAGAR" && !p.cumplido);
@@ -140,9 +142,11 @@ export function ContenidoPendientes({
               {/* Barra: Filtros al mismo nivel que Agregar */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <FiltrosPendientes />
-                <div className="shrink-0">
-                  <FormularioPendiente tipoInicial={tipoDefault[activeTab]} />
-                </div>
+                {esEditor && (
+                  <div className="shrink-0">
+                    <FormularioPendiente tipoInicial={tipoDefault[activeTab]} />
+                  </div>
+                )}
               </div>
 
               {lista.length === 0 ? (
@@ -153,7 +157,9 @@ export function ContenidoPendientes({
                       ? "No hay actividades pendientes"
                       : "No hay pendientes en esta categoría"}
                   </p>
-                  <p className="mt-1 text-xs text-texto-suave">Haz clic en &quot;Agregar&quot; para crear uno</p>
+                  {esEditor && (
+                    <p className="mt-1 text-xs text-texto-suave">Haz clic en &quot;Agregar&quot; para crear uno</p>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -166,6 +172,7 @@ export function ContenidoPendientes({
                       valor={p.valor}
                       cumplido={p.cumplido}
                       createdAt={p.created_at}
+                      esEditor={esEditor}
                     />
                   ))}
                 </div>

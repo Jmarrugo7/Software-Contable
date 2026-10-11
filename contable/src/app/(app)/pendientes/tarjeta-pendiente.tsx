@@ -17,6 +17,7 @@ interface Props {
   valor: number | null;
   cumplido: boolean;
   createdAt: string;
+  esEditor: boolean;
 }
 
 const ETIQUETA_TIPO: Record<TipoPendiente, string> = {
@@ -31,7 +32,15 @@ const COLOR_TIPO: Record<TipoPendiente, string> = {
   NOTA: "bg-gris-200 text-gris-700",
 };
 
-export function TarjetaPendiente({ id, tipo, descripcion, valor, cumplido, createdAt }: Props) {
+export function TarjetaPendiente({
+  id,
+  tipo,
+  descripcion,
+  valor,
+  cumplido,
+  createdAt,
+  esEditor,
+}: Props) {
   const [modalCumplir, setModalCumplir] = useState(false);
   const [modalEliminar, setModalEliminar] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
@@ -132,7 +141,7 @@ export function TarjetaPendiente({ id, tipo, descripcion, valor, cumplido, creat
           </div>
 
           {/* Acciones */}
-          {!cumplido && (
+          {!cumplido && esEditor && (
             <div className="flex shrink-0 gap-1">
               <Button
                 variante="fantasma"
@@ -173,12 +182,15 @@ export function TarjetaPendiente({ id, tipo, descripcion, valor, cumplido, creat
         </div>
       </div>
 
-      {/* Modal editar pendiente */}
-      <Modal
-        isOpen={modalEditar}
-        onClose={() => setModalEditar(false)}
-        title={`Editar ${ETIQUETA_TIPO[tipo].toLowerCase()}`}
-      >
+      {/* Modales de edición, cumplimiento y eliminación (solo para editores) */}
+      {esEditor && (
+        <>
+          {/* Modal editar pendiente */}
+          <Modal
+            isOpen={modalEditar}
+            onClose={() => setModalEditar(false)}
+            title={`Editar ${ETIQUETA_TIPO[tipo].toLowerCase()}`}
+          >
         <form onSubmit={handleEditar} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor={`edit-desc-${id}`} className="block text-sm font-semibold text-texto">
@@ -287,7 +299,9 @@ export function TarjetaPendiente({ id, tipo, descripcion, valor, cumplido, creat
             {isPending ? "Eliminando…" : "Sí, eliminar"}
           </Button>
         </div>
-      </Modal>
+          </Modal>
+        </>
+      )}
     </>
   );
 }

@@ -2,12 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { puedeEditar } from "@/lib/permisos";
 
 export type TipoPendiente = "CUENTA_POR_PAGAR" | "CUENTA_POR_COBRAR" | "NOTA";
 
 // ─── Crear un pendiente ───
 export async function crearPendiente(formData: FormData) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !puedeEditar(user.email)) {
+    return { error: "No tienes permisos para agregar pendientes." };
+  }
 
   const tipo = formData.get("tipo") as TipoPendiente;
   const descripcion = (formData.get("descripcion") as string)?.trim();
@@ -40,6 +45,10 @@ export async function crearPendiente(formData: FormData) {
 // El trigger de la base de datos se encarga de crear la actividad realizada.
 export async function marcarCumplido(id: string) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !puedeEditar(user.email)) {
+    return { error: "No tienes permisos para marcar pendientes como cumplidos." };
+  }
 
   const { error } = await supabase
     .from("pendientes")
@@ -57,6 +66,10 @@ export async function marcarCumplido(id: string) {
 // ─── Eliminar un pendiente ───
 export async function eliminarPendiente(id: string) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !puedeEditar(user.email)) {
+    return { error: "No tienes permisos para eliminar pendientes." };
+  }
 
   const { error } = await supabase
     .from("pendientes")
@@ -74,6 +87,10 @@ export async function eliminarPendiente(id: string) {
 // ─── Editar un pendiente ───
 export async function editarPendiente(id: string, formData: FormData) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !puedeEditar(user.email)) {
+    return { error: "No tienes permisos para editar pendientes." };
+  }
 
   const tipo = formData.get("tipo") as TipoPendiente;
   const descripcion = (formData.get("descripcion") as string)?.trim();

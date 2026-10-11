@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { puedeEditar } from "@/lib/permisos";
 import { ContenidoPendientes } from "./contenido-pendientes";
 import type { TipoPendiente } from "./acciones";
 
 export const metadata: Metadata = { title: "Pendientes" };
+export const dynamic = "force-dynamic";
 
 export default async function PaginaPendientes({
   searchParams,
@@ -16,6 +18,8 @@ export default async function PaginaPendientes({
   }>;
 }) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const esEditor = puedeEditar(user?.email);
   const { fecha, tipo, descripcion, valor } = await searchParams;
 
   let queryPendientes = supabase.from("pendientes").select("*");
@@ -64,6 +68,7 @@ export default async function PaginaPendientes({
       <ContenidoPendientes
         pendientes={pendientesRes.data ?? []}
         actividades={actividadesRes.data ?? []}
+        esEditor={esEditor}
       />
     </>
   );
