@@ -1,124 +1,164 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Campo } from "@/components/ui/campo";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { useCallback, useTransition } from "react";
+import { X, SlidersHorizontal } from "lucide-react";
+
+type Catalogo = { id: number; nombre: string };
 
 interface FiltrosProps {
-  categorias: { id: number; nombre: string }[];
-  fuentes: { id: number; nombre: string }[];
-  metodos: { id: number; nombre: string }[];
-  valoresActuales: {
-    desde: string;
-    hasta: string;
-    categoria: string;
-    fuente: string;
-    metodo: string;
-    agrupacion: string;
-  };
+  categorias: Catalogo[];
+  fuentes: Catalogo[];
 }
 
-export function FiltrosGastos({ categorias, fuentes, metodos, valoresActuales }: FiltrosProps) {
+export function FiltrosGastos({ categorias, fuentes }: FiltrosProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
-  const handleApply = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const params = new URLSearchParams(searchParams.toString());
-    
-    const desde = formData.get("desde") as string;
-    const hasta = formData.get("hasta") as string;
-    const categoria = formData.get("categoria") as string;
-    const fuente = formData.get("fuente") as string;
-    const metodo = formData.get("metodo") as string;
-    const agrupacion = formData.get("agrupacion") as string;
+  // Current filter values from URL
+  const desde = searchParams.get("desde") || "";
+  const hasta = searchParams.get("hasta") || "";
+  const categoriaId = searchParams.get("categoria") || "";
+  const fuenteId = searchParams.get("fuente") || "";
 
-    if (desde) params.set("desde", desde);
-    else params.delete("desde");
+  const hayFiltrosActivos = desde || hasta || categoriaId || fuenteId;
 
-    if (hasta) params.set("hasta", hasta);
-    else params.delete("hasta");
+  const actualizarFiltro = useCallback(
+    (clave: string, valor: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (valor) {
+        params.set(clave, valor);
+      } else {
+        params.delete(clave);
+      }
+      startTransition(() => {
+        router.push(`?${params.toString()}`, { scroll: false });
+      });
+    },
+    [searchParams, router]
+  );
 
-    if (categoria) params.set("categoria", categoria);
-    else params.delete("categoria");
-
-    if (fuente) params.set("fuente", fuente);
-    else params.delete("fuente");
-
-    if (metodo) params.set("metodo", metodo);
-    else params.delete("metodo");
-
-    if (agrupacion) params.set("agrupacion", agrupacion);
-    else params.delete("agrupacion");
-
-    router.push(`/gastos?${params.toString()}`);
-  };
-
-  const handleClear = () => {
-    router.push("/gastos");
-  };
-
-  const hayFiltrosActivos = valoresActuales.desde || valoresActuales.hasta || valoresActuales.categoria || valoresActuales.fuente || valoresActuales.metodo || valoresActuales.agrupacion !== "month";
+  const limpiarFiltros = useCallback(() => {
+    startTransition(() => {
+      router.push("?", { scroll: false });
+    });
+  }, [router]);
 
   return (
-    <form onSubmit={handleApply} className="bg-superficie border border-borde rounded-xl p-5 shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-        <Campo id="desde" etiqueta="Desde">
-          <Input id="desde" name="desde" type="date" defaultValue={valoresActuales.desde} />
-        </Campo>
-        
-        <Campo id="hasta" etiqueta="Hasta">
-          <Input id="hasta" name="hasta" type="date" defaultValue={valoresActuales.hasta} />
-        </Campo>
-
-        <Campo id="categoria" etiqueta="Gasto/Compra">
-          <Select id="categoria" name="categoria" defaultValue={valoresActuales.categoria}>
-            <option value="">Todas las categorías</option>
-            {categorias.map(c => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
-            ))}
-          </Select>
-        </Campo>
-
-        <Campo id="fuente" etiqueta="Fuente de recursos">
-          <Select id="fuente" name="fuente" defaultValue={valoresActuales.fuente}>
-            <option value="">Todas las fuentes</option>
-            {fuentes.map(f => (
-              <option key={f.id} value={f.id}>{f.nombre}</option>
-            ))}
-          </Select>
-        </Campo>
-
-        <Campo id="metodo" etiqueta="Método de pago">
-          <Select id="metodo" name="metodo" defaultValue={valoresActuales.metodo}>
-            <option value="">Todos los métodos</option>
-            {metodos.map(m => (
-              <option key={m.id} value={m.id}>{m.nombre}</option>
-            ))}
-          </Select>
-        </Campo>
-
-        <Campo id="agrupacion" etiqueta="Agrupar por">
-          <Select id="agrupacion" name="agrupacion" defaultValue={valoresActuales.agrupacion}>
-            <option value="day">Día</option>
-            <option value="week">Semana</option>
-            <option value="month">Mes</option>
-            <option value="year">Año</option>
-          </Select>
-        </Campo>
-      </div>
-      
-      <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-borde">
+    <div className="mt-6 rounded-lg border border-borde bg-superficie shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-borde/60">
+        <div className="flex items-center gap-2 text-texto-suave">
+          <SlidersHorizontal className="size-4" />
+          <span className="text-sm font-semibold uppercase tracking-wide">
+            Filtros
+          </span>
+          {hayFiltrosActivos && (
+            <span className="inline-flex items-center rounded-full bg-primario/10 px-2 py-0.5 text-xs font-semibold text-primario">
+              Activos
+            </span>
+          )}
+        </div>
         {hayFiltrosActivos && (
-          <Button type="button" variante="fantasma" onClick={handleClear}>
+          <button
+            onClick={limpiarFiltros}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-texto-suave hover:text-rojo hover:bg-rojo-suave transition-colors duration-200"
+          >
+            <X className="size-3.5" />
             Limpiar filtros
-          </Button>
+          </button>
         )}
-        <Button type="submit">Aplicar filtros</Button>
       </div>
-    </form>
+
+      {/* Filter Grid — single row */}
+      <div
+        className={`grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4 transition-opacity duration-200 ${isPending ? "opacity-50" : ""}`}
+      >
+        {/* Desde */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="filtro-desde"
+            className="text-xs font-semibold text-texto-suave uppercase tracking-wide"
+          >
+            Desde
+          </label>
+          <input
+            suppressHydrationWarning
+            id="filtro-desde"
+            type="date"
+            value={desde}
+            onChange={(e) => actualizarFiltro("desde", e.target.value)}
+            className="h-9 w-full rounded-md border border-borde bg-superficie px-2.5 text-sm text-texto focus:border-primario focus:ring-2 focus:ring-primario/20 transition-all duration-200"
+          />
+        </div>
+
+        {/* Hasta */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="filtro-hasta"
+            className="text-xs font-semibold text-texto-suave uppercase tracking-wide"
+          >
+            Hasta
+          </label>
+          <input
+            suppressHydrationWarning
+            id="filtro-hasta"
+            type="date"
+            value={hasta}
+            onChange={(e) => actualizarFiltro("hasta", e.target.value)}
+            className="h-9 w-full rounded-md border border-borde bg-superficie px-2.5 text-sm text-texto focus:border-primario focus:ring-2 focus:ring-primario/20 transition-all duration-200"
+          />
+        </div>
+
+        {/* Gasto/Compra — dropdown */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="filtro-categoria"
+            className="text-xs font-semibold text-texto-suave uppercase tracking-wide"
+          >
+            Gasto / Compra
+          </label>
+          <select
+            suppressHydrationWarning
+            id="filtro-categoria"
+            value={categoriaId}
+            onChange={(e) => actualizarFiltro("categoria", e.target.value)}
+            className="h-9 w-full rounded-md border border-borde bg-superficie px-2.5 text-sm text-texto focus:border-primario focus:ring-2 focus:ring-primario/20 transition-all duration-200"
+          >
+            <option value="">Todas</option>
+            {categorias && categorias.length > 0 && categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Fuente de recursos — dropdown */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="filtro-fuente"
+            className="text-xs font-semibold text-texto-suave uppercase tracking-wide"
+          >
+            Fuente
+          </label>
+          <select
+            suppressHydrationWarning
+            id="filtro-fuente"
+            value={fuenteId}
+            onChange={(e) => actualizarFiltro("fuente", e.target.value)}
+            className="h-9 w-full rounded-md border border-borde bg-superficie px-2.5 text-sm text-texto focus:border-primario focus:ring-2 focus:ring-primario/20 transition-all duration-200"
+          >
+            <option value="">Todas</option>
+            {fuentes && fuentes.length > 0 && fuentes.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -3,7 +3,8 @@ import { FiltrosGastos } from "./filtros-gastos";
 import { GraficaGastos } from "./grafica-gastos";
 import { GraficaCategorias } from "./grafica-categorias";
 import { TablaCategorias } from "./tabla-categorias";
-import { BarChart3, Receipt } from "lucide-react";
+import { TablaFuentes } from "./tabla-fuentes";
+import { BarChart3, Receipt, Landmark } from "lucide-react";
 
 import { BotonExportar } from "./boton-exportar";
 
@@ -17,25 +18,20 @@ export default async function PaginaGastos({
     hasta?: string; 
     categoria?: string; 
     fuente?: string;
-    metodo?: string;
-    agrupacion?: string 
   }>;
 }) {
   const supabase = await createClient();
   const params = await searchParams;
 
-  const agrupacion = params.agrupacion || "month";
   const desde = params.desde || null;
   const hasta = params.hasta || null;
   const categoriaId = params.categoria ? Number(params.categoria) : null;
   const fuenteId = params.fuente ? Number(params.fuente) : null;
-  const metodoId = params.metodo ? Number(params.metodo) : null;
 
   // Cargar catálogos para filtros
-  const [{ data: categorias }, { data: fuentes }, { data: metodos }] = await Promise.all([
+  const [{ data: categorias }, { data: fuentes }] = await Promise.all([
     supabase.from("gastos_compras").select("id, nombre").order("nombre"),
     supabase.from("fuentes_recursos").select("id, nombre").order("nombre"),
-    supabase.from("metodos_pago").select("id, nombre").order("nombre")
   ]);
 
   // Consultar resumen (total y cantidad) usando la función RPC
@@ -44,27 +40,50 @@ export default async function PaginaGastos({
     p_hasta: hasta as any,
     p_gasto_compra_id: categoriaId as any,
     p_fuente_recursos_id: fuenteId as any,
-    p_metodo_pago_id: metodoId as any,
+    p_metodo_pago_id: null as any,
   } as any);
   
   const resumen = resumenReq?.[0] || { total: 0, cantidad_facturas: 0 };
 
-  // Consultar datos para las gráficas
+  // Consultar datos para las gráficas (agrupación fija por mes)
   const { data: gastosPorPeriodo } = await supabase.rpc("gastos_por_periodo", {
-    p_agrupacion: agrupacion,
+    p_agrupacion: "month",
     p_desde: desde as any,
     p_hasta: hasta as any,
     p_gasto_compra_id: categoriaId as any,
     p_fuente_recursos_id: fuenteId as any,
-    p_metodo_pago_id: metodoId as any,
+    p_metodo_pago_id: null as any,
   } as any);
 
   const { data: gastosPorCategoria } = await supabase.rpc("gastos_por_categoria", {
     p_desde: desde as any,
     p_hasta: hasta as any,
     p_fuente_recursos_id: fuenteId as any,
-    p_metodo_pago_id: metodoId as any,
+    p_metodo_pago_id: null as any,
   } as any);
+
+  // Consulta FIJA (sin filtros) — totales agrupados por fuente de recursos
+  const { data: totalesPorFuente } = await supabase
+    .from("facturas")
+    .select("fuente_recursos_id, fuentes_recursos(nombre), total")
+    .eq("estado", "activa");
+
+  // Agrupar manualmente por fuente
+  const mapaFuentes = new Map<number, { fuente_recursos_id: number; nombre: string; total: number }>();
+  if (totalesPorFuente) {
+    for (const f of totalesPorFuente) {
+      const id = f.fuente_recursos_id;
+      const nombre = (f.fuentes_recursos as any)?.nombre || "Desconocida";
+      const totalVal = Number(f.total) || 0;
+      const existing = mapaFuentes.get(id);
+      if (existing) {
+        existing.total += totalVal;
+      } else {
+        mapaFuentes.set(id, { fuente_recursos_id: id, nombre, total: totalVal });
+      }
+    }
+  }
+  const datosFuentes = Array.from(mapaFuentes.values());
 
   const formatoMoneda = new Intl.NumberFormat("es-CO", { 
     style: "currency", 
@@ -91,7 +110,7 @@ export default async function PaginaGastos({
             hasta: hasta,
             categoria: categoriaId,
             fuente: fuenteId,
-            metodo: metodoId
+            metodo: null
           }}
         />
       </div>
@@ -99,15 +118,6 @@ export default async function PaginaGastos({
       <FiltrosGastos 
         categorias={categorias || []} 
         fuentes={fuentes || []}
-        metodos={metodos || []}
-        valoresActuales={{
-          desde: desde || "",
-          hasta: hasta || "",
-          categoria: params.categoria || "",
-          fuente: params.fuente || "",
-          metodo: params.metodo || "",
-          agrupacion: agrupacion
-        }} 
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -133,6 +143,14 @@ export default async function PaginaGastos({
       </div>
 
       <div className="rounded-xl border border-borde bg-superficie p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <Landmark className="size-5 text-primario" />
+          <h3 className="font-semibold text-lg text-texto">Distribución por Fuente de Recursos</h3>
+        </div>
+        <TablaFuentes datos={datosFuentes} />
+      </div>
+
+      <div className="rounded-xl border border-borde bg-superficie p-6 shadow-sm">
         <h3 className="font-semibold text-lg text-texto mb-4">Detalle de Gastos por Categoría</h3>
         <TablaCategorias datos={gastosPorCategoria || []} />
       </div>
@@ -155,3 +173,4 @@ export default async function PaginaGastos({
     </div>
   );
 }
+

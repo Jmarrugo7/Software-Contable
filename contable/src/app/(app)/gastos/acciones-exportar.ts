@@ -46,7 +46,30 @@ export async function obtenerDatosExportacion(filtros: {
     p_metodo_pago_id: filtros.metodo || null,
   } as any);
 
-  if (errorResumen) throw new Error("Error al consultar resumen: " + errorResumen.message);
+  // 3. Obtener totales por fuente de recursos (FIJO — sin filtros)
+  const { data: todasFacturas, error: errorFuentes } = await supabase
+    .from("facturas")
+    .select("fuente_recursos_id, fuentes_recursos(nombre), total")
+    .eq("estado", "activa");
 
-  return { facturas, resumen };
+  if (errorFuentes) throw new Error("Error al consultar fuentes: " + errorFuentes.message);
+
+  // Agrupar por fuente
+  const mapaFuentes = new Map<number, { nombre: string; total: number }>();
+  if (todasFacturas) {
+    for (const f of todasFacturas) {
+      const id = f.fuente_recursos_id;
+      const nombre = (f.fuentes_recursos as any)?.nombre || "Desconocida";
+      const totalVal = Number(f.total) || 0;
+      const existing = mapaFuentes.get(id);
+      if (existing) {
+        existing.total += totalVal;
+      } else {
+        mapaFuentes.set(id, { nombre, total: totalVal });
+      }
+    }
+  }
+  const resumenFuentes = Array.from(mapaFuentes.values()).sort((a, b) => b.total - a.total);
+
+  return { facturas, resumen, resumenFuentes };
 }

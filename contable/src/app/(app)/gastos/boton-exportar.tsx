@@ -23,7 +23,7 @@ export function BotonExportar({ filtrosActuales }: BotonExportarProps) {
   const handleExport = async () => {
     try {
       setExportando(true);
-      const { facturas, resumen } = await obtenerDatosExportacion(filtrosActuales);
+      const { facturas, resumen, resumenFuentes } = await obtenerDatosExportacion(filtrosActuales);
 
       const workbook = new ExcelJS.Workbook();
       
@@ -262,6 +262,87 @@ export function BotonExportar({ filtrosActuales }: BotonExportarProps) {
       // Añadir bordes a todas las celdas de datos en Hoja 2
       sheetControl.eachRow((row, rowNumber) => {
         if (rowNumber > 1 && rowNumber < totalRow.number) {
+          row.eachCell((cell) => {
+            cell.border = {
+              top: { style: "hair" },
+              left: { style: "hair" },
+              bottom: { style: "hair" },
+              right: { style: "hair" }
+            };
+          });
+        }
+      });
+
+      // ==========================================
+      // Hoja 3: Fuentes de Recursos
+      // ==========================================
+      const sheetFuentes = workbook.addWorksheet("Fuentes de Recursos");
+
+      sheetFuentes.columns = [
+        { header: "FUENTE DE RECURSOS", key: "fuente", width: 35 },
+        { header: "SUM de TOTAL", key: "sum_total", width: 20 },
+        { header: "PORCENTAJE", key: "porcentaje", width: 15 }
+      ];
+
+      const sumaTotalFuentes = resumenFuentes.reduce((acc: number, item: any) => acc + Number(item.total), 0);
+
+      resumenFuentes.forEach((item: any) => {
+        const val = Number(item.total);
+        sheetFuentes.addRow({
+          fuente: item.nombre,
+          sum_total: val,
+          porcentaje: sumaTotalFuentes > 0 ? (val / sumaTotalFuentes) : 0
+        });
+      });
+
+      // Fila de totales
+      const totalRowFuentes = sheetFuentes.addRow({
+        fuente: "SUMA TOTAL",
+        sum_total: sumaTotalFuentes,
+        porcentaje: sumaTotalFuentes > 0 ? 1 : 0
+      });
+
+      // Estilo de encabezados (Hoja 3)
+      const headerRowFuentes = sheetFuentes.getRow(1);
+      headerRowFuentes.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFB4C6E7" } // Azul lavanda
+        };
+        cell.font = { bold: true };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" }
+        };
+      });
+
+      // Formatos de columnas
+      sheetFuentes.getColumn("sum_total").numFmt = moneyFormat;
+      sheetFuentes.getColumn("porcentaje").numFmt = "0.00%";
+
+      // Estilo de la fila de SUMA TOTAL
+      totalRowFuentes.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFB4C6E7" } // Azul lavanda
+        };
+        cell.font = { bold: true };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" }
+        };
+      });
+
+      // Añadir bordes a todas las celdas de datos en Hoja 3
+      sheetFuentes.eachRow((row, rowNumber) => {
+        if (rowNumber > 1 && rowNumber < totalRowFuentes.number) {
           row.eachCell((cell) => {
             cell.border = {
               top: { style: "hair" },
