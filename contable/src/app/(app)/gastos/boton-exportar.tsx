@@ -203,9 +203,9 @@ export function BotonExportar({ filtrosActuales }: BotonExportarProps) {
         { header: "PORCENTAJE", key: "porcentaje", width: 15 }
       ];
 
-      const sumaTotal = resumen.reduce((acc: number, item: any) => acc + Number(item.total), 0);
+      const sumaTotal = (resumen || []).reduce((acc: number, item: any) => acc + Number(item.total), 0);
       
-      resumen.forEach((item: any) => {
+      (resumen || []).forEach((item: any) => {
         const val = Number(item.total);
         sheetControl.addRow({
           tipo: item.nombre,
